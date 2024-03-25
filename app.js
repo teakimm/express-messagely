@@ -19,7 +19,7 @@ app.use(cors());
 
 // get auth token for all routes
 app.use(authenticateJWT);
-app.use(ensureLoggedIn);
+
 
 /** routes */
 
