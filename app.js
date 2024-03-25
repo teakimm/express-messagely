@@ -5,7 +5,7 @@
 
 const express = require("express");
 const cors = require("cors");
-const { authenticateJWT, ensureLoggedIn } = require("./middleware/auth");
+const { authenticateJWT, ensureLoggedIn, ensureCorrectUser } = require("./middleware/auth");
 
 const { NotFoundError } = require("./expressError");
 const app = new express();
@@ -29,7 +29,7 @@ const messageRoutes = require("./routes/messages");
 
 app.use("/auth", authRoutes);
 app.use("/users", ensureLoggedIn, userRoutes);
-app.use("/messages", messageRoutes);
+app.use("/messages", ensureCorrectUser, messageRoutes);
 
 
 /** 404 handler: matches unmatched routes; raises NotFoundError. */
