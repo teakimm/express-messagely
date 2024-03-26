@@ -49,6 +49,15 @@ describe("Test User class", function () {
     expect(u2.last_login_at).not.toBe(null);
   });
 
+  test("cannot update timestamp on user that does not exist", async function () {
+    try {
+      await User.updateLoginTimestamp("notAUser");
+    } catch (err) {
+      expect(err.message).toEqual("Could not find notAUser.");
+    }
+  });
+
+
   test("can get", async function () {
     let u = await User.get("test");
     expect(u).toEqual({
@@ -59,6 +68,14 @@ describe("Test User class", function () {
       last_login_at: null,
       join_at: expect.any(Date),
     });
+  });
+
+  test("cannot get a user that does not exist", async function () {
+    try {
+      await User.get("notAUser");
+    } catch (err) {
+      expect(err.message).toEqual("Could not find notAUser.");
+    }
   });
 
   test("can get all", async function () {

@@ -70,7 +70,6 @@ describe("Test Message class", function () {
   });
 
   test("cannot mark read on nonexistent message", async function () {
-
     try {
       await Message.markRead(0);
     } catch (err) {
@@ -99,6 +98,14 @@ describe("Test Message class", function () {
         phone: "+14155552222",
       },
     });
+  });
+
+  test("cannot get a message that does not exist", async function () {
+    try {
+      await Message.get(0);
+    } catch (err) {
+      expect(err.message).toEqual("No such message: 0");
+    }
   });
 });
 
