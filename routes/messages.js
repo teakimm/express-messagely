@@ -18,7 +18,7 @@ const { BadRequestError, UnauthorizedError } = require("../expressError");
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", async function (req, res, next) { //TODO: use login auth
+router.get("/:id", async function (req, res, next) { //TODO: use login auth, pass proper error message, consider using a "fail fast approach"
   const message = await Message.get(req.params.id);
 
   if (res.locals.user.username === message.from_user.username
