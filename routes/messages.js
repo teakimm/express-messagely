@@ -17,9 +17,9 @@ const { BadRequestError } = require("../expressError");
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", async function(req, res, next) {
+router.get("/:id", async function (req, res, next) {
   const message = await Message.get(req.params.id);
-  return res.json({message});
+  return res.json({ message });
 });
 
 
@@ -29,14 +29,16 @@ router.get("/:id", async function(req, res, next) {
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
-router.post("/", async function(req, res, next) {
-  if(req.body === undefined) throw new BadRequestError();
+router.post("/", async function (req, res, next) {
+  if (req.body === undefined) throw new BadRequestError();
 
   const { to_username, body } = req.body;
 
-  const message = Message.create(res.locals.user.username, to_username, body);
+  const from_username = res.locals.user.username;
 
-  return res.json({message});
+  const messageData = await Message.create({from_username, to_username, body});
+
+  return res.json({ message: messageData });
 
 });
 
@@ -48,10 +50,10 @@ router.post("/", async function(req, res, next) {
  * Makes sure that the only the intended recipient can mark as read.
  *
  **/
-router.post("/:id/read", async function(req, res, next) {
-  const readData = Message.markRead(req.params.id);
+router.post("/:id/read", async function (req, res, next) {
+  const readData = await Message.markRead(req.params.id);
 
-  return res.json({message: readData});
+  return res.json({ message: readData });
 });
 
 
