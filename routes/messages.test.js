@@ -131,49 +131,46 @@ describe("Message Routes Test", function () {
       });
     });
 
-    test("cannot create a message without login", async function () {
+    test("cannot create a message without body", async function () {
       const response = await request(app)
         .post(`/messages`)
-        .send({
-          to_username: "test2",
-          body: "Hello user2, this is a test message."
-        })
+        .send()
+        .query({ _token: test1UserToken });
+
+      expect(response.statusCode).toEqual(400);
+      expect(response.body).toEqual({
+        error: { message: "Bad Request", status: 400 }
+      });
+    });
+  });
+
+  /** POST read a message */
+  describe("POST /messages/:id/read", function () {
+    test("can see read a message", async function () {
+      const response = await request(app)
+        .post(`/messages/${m2Id}/read`)
+        .query({ _token: test1UserToken });
+
+      expect(response.statusCode).toEqual(201);
+      expect(response.body).toEqual({
+        message: {
+          id: m2Id,
+          read_at: expect.any(String)
+        }
+      });
+    });
+
+    test("cannot see read a message with unauthorized user", async function () {
+      const response = await request(app)
+        .post(`/messages/${m2Id}/read`)
+        .query({ _token: test3UserToken });
 
       expect(response.statusCode).toEqual(401);
       expect(response.body).toEqual({
         error: { message: "Unauthorized", status: 401 }
       });
     });
-    });
   });
-
-    /** POST read a message */
-    describe("POST /messages/:id/read", function () {
-      test("can see read a message", async function () {
-        const response = await request(app)
-          .post(`/messages/${m2Id}/read`)
-          .query({ _token: test1UserToken });
-
-        expect(response.statusCode).toEqual(201);
-        expect(response.body).toEqual({
-          message: {
-            id: m2Id,
-            read_at: expect.any(String)
-          }
-        });
-      });
-    });
-  //});
-
-
-
-
-
-
-
-
-
-
 });
 
 afterAll(async function () {
