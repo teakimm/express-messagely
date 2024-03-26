@@ -3,7 +3,7 @@
 const Router = require("express").Router;
 const router = new Router();
 const Message = require("../models/message");
-const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
+const { ensureLoggedIn } = require("../middleware/auth");
 const { BadRequestError, UnauthorizedError } = require("../expressError");
 
 /** GET /:id - get detail of message.
@@ -57,7 +57,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Makes sure that the only the intended recipient can mark as read.
  *
  **/
-router.post("/:id/read", ensureCorrectUser, async function (req, res, next) {
+router.post("/:id/read", ensureLoggedIn, async function (req, res, next) {
   const readData = await Message.markRead(req.params.id);
 
   const message = await Message.get(req.params.id);
@@ -66,7 +66,7 @@ router.post("/:id/read", ensureCorrectUser, async function (req, res, next) {
     throw new UnauthorizedError();
   }
 
-  return res.json({ message: readData });
+  return res.status(201).json({ message: readData });
 });
 
 
