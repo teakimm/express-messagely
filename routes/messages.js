@@ -3,7 +3,7 @@
 const Router = require("express").Router;
 const router = new Router();
 const Message = require("../models/message");
-const { ensureCorrectUser } = require("../middleware/auth")
+const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const { BadRequestError, UnauthorizedError } = require("../expressError");
 
 /** GET /:id - get detail of message.
@@ -18,15 +18,15 @@ const { BadRequestError, UnauthorizedError } = require("../expressError");
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", async function (req, res, next) { //TODO: use login auth, pass proper error message, consider using a "fail fast approach"
+router.get("/:id", ensureLoggedIn, async function (req, res, next) {
   const message = await Message.get(req.params.id);
 
-  if (res.locals.user.username === message.from_user.username
-    || res.locals.user.username === message.to_user.username) {
-    return res.json({ message });
+  if (res.locals.user.username !== message.from_user.username
+    && res.locals.user.username !== message.to_user.username) {
+    throw new UnauthorizedError();
   }
 
-  throw new UnauthorizedError();
+  return res.json({ message });
 });
 
 
@@ -36,7 +36,7 @@ router.get("/:id", async function (req, res, next) { //TODO: use login auth, pas
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
-router.post("/", async function (req, res, next) {
+router.post("/", ensureLoggedIn, async function (req, res, next) {
   if (req.body === undefined) throw new BadRequestError();
 
   const { to_username, body } = req.body;
@@ -57,16 +57,16 @@ router.post("/", async function (req, res, next) {
  * Makes sure that the only the intended recipient can mark as read.
  *
  **/
-router.post("/:id/read", async function (req, res, next) {
+router.post("/:id/read", ensureCorrectUser, async function (req, res, next) {
   const readData = await Message.markRead(req.params.id);
 
   const message = await Message.get(req.params.id);
 
-  if (res.locals.user.username === message.to_user.username) {
-    return res.json({ message: readData });
+  if (res.locals.user.username !== message.to_user.username) {
+    throw new UnauthorizedError();
   }
 
-  throw new UnauthorizedError();
+  return res.json({ message: readData });
 });
 
 
