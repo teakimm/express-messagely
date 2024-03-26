@@ -11,7 +11,7 @@ const { ensureCorrectUser } = require("../middleware/auth");
  * => {users: [{username, first_name, last_name}, ...]}
  *
  **/
-router.get("/", async function (req, res, next) {
+router.get("/", async function (req, res, next) { //TODO: not all routes require logged in user
   const users = await User.all();
   return res.json({users});
 })

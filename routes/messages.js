@@ -3,7 +3,8 @@
 const Router = require("express").Router;
 const router = new Router();
 const Message = require("../models/message");
-const { BadRequestError } = require("../expressError");
+const { ensureCorrectUser } = require("../middleware/auth")
+const { BadRequestError, UnauthorizedError } = require("../expressError");
 
 /** GET /:id - get detail of message.
  *
@@ -17,9 +18,15 @@ const { BadRequestError } = require("../expressError");
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", async function (req, res, next) {
+router.get("/:id", async function (req, res, next) { //TODO: use login auth
   const message = await Message.get(req.params.id);
-  return res.json({ message });
+
+  if (res.locals.user.username === message.from_user.username
+    || res.locals.user.username === message.to_user.username) {
+    return res.json({ message });
+  }
+
+  throw new UnauthorizedError();
 });
 
 
@@ -36,7 +43,7 @@ router.post("/", async function (req, res, next) {
 
   const from_username = res.locals.user.username;
 
-  const messageData = await Message.create({from_username, to_username, body});
+  const messageData = await Message.create({ from_username, to_username, body });
 
   return res.json({ message: messageData });
 
@@ -53,7 +60,13 @@ router.post("/", async function (req, res, next) {
 router.post("/:id/read", async function (req, res, next) {
   const readData = await Message.markRead(req.params.id);
 
-  return res.json({ message: readData });
+  const message = await Message.get(req.params.id);
+
+  if (res.locals.user.username === message.to_user.username) {
+    return res.json({ message: readData });
+  }
+
+  throw new UnauthorizedError();
 });
 
 

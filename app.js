@@ -28,7 +28,7 @@ const userRoutes = require("./routes/users");
 const messageRoutes = require("./routes/messages");
 
 app.use("/auth", authRoutes);
-app.use("/users", ensureLoggedIn, userRoutes);
+app.use("/users", ensureLoggedIn, userRoutes); //TODO: not all routes require logged in user
 app.use("/messages", ensureLoggedIn, messageRoutes);
 
 
