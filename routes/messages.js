@@ -45,7 +45,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
   const messageData = await Message.create({ from_username, to_username, body });
 
-  return res.json({ message: messageData });
+  return res.status(201).json({ message: messageData });
 
 });
 
