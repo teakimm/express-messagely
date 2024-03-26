@@ -43,6 +43,17 @@ describe("Auth Routes Test", function () {
         iat: expect.any(Number)
       });
     });
+
+    test("cannot register with empty body", async function () {
+      let response = await request(app)
+        .post("/auth/register")
+        .send();
+
+      expect(response.statusCode).toEqual(400);
+      expect(response.body).toEqual({
+        error: { message: "Bad Request", status: 400 }
+      });
+    });
   });
 
   /** POST /auth/login => token  */
@@ -73,6 +84,18 @@ describe("Auth Routes Test", function () {
         .send({ username: "not-user", password: "password" });
       expect(response.statusCode).toEqual(401);
     });
+
+    test("cannot login with empty body", async function () {
+      let response = await request(app)
+        .post("/auth/login")
+        .send();
+
+      expect(response.statusCode).toEqual(400);
+      expect(response.body).toEqual({
+        error: { message: "Bad Request", status: 400 }
+      });
+    });
+
   });
 });
 

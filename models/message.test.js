@@ -66,7 +66,18 @@ describe("Test Message class", function () {
     const result = await db.query("SELECT read_at FROM messages WHERE id=$1",
         [m.id]);
     expect(result.rows[0].read_at).toEqual(expect.any(Date));
+
   });
+
+  test("cannot mark read on nonexistent message", async function () {
+
+    try {
+      await Message.markRead(0);
+    } catch (err) {
+      expect(err.message).toEqual("No such message: 0");
+    }
+  });
+
 
   test("can get", async function () {
     let u = await Message.get(1);
